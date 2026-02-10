@@ -8,7 +8,11 @@ A personal browser start page built with [Astro](https://astro.build/), featurin
 
 - Categorized quick-access links (general, media, social, tech)
 - Catppuccin Macchiato theme
-- JetBrains Mono Nerd Font
+- JetBrains Mono Nerd Font with build-time optimization:
+  - Automatic font subsetting — only characters actually used on the page are included
+  - WOFF2 compression (reduces the ~2.3 MB TTF source to a few KB)
+  - `font-display: swap` for fast initial render with graceful fallback
+  - Self-hosted (no external CDN requests)
 - Responsive layout
 - Optimized images via `sharp`
 
@@ -51,3 +55,4 @@ Edit `src/pages/index.astro` to change the links, categories, title, or styling.
 
 - [Astro](https://astro.build/)
 - [sharp](https://sharp.pixelplumbing.com/) (image optimization)
+- [subset-font](https://github.com/nicolo-ribaudo/subset-font) (font subsetting)
