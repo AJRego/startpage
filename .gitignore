@@ -1,5 +1,6 @@
 # build output
 dist/
+public/fonts/*.woff2
 # generated types
 .astro/
 

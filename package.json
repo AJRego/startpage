@@ -3,13 +3,17 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "subset-font": "node scripts/subset-font.mjs",
+    "dev": "node scripts/subset-font.mjs && astro dev",
+    "build": "node scripts/subset-font.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "astro": "^5.14.4",
     "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "subset-font": "^2.4.0"
   }
 }
