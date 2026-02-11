@@ -13,6 +13,16 @@ const title = "~/";
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<script is:inline>
+			(function () {
+				var theme = localStorage.getItem("theme");
+				if (theme === "light") {
+					document.documentElement.setAttribute("data-theme", "light");
+				} else if (!theme && window.matchMedia("(prefers-color-scheme: light)").matches) {
+					document.documentElement.setAttribute("data-theme", "light");
+				}
+			})();
+		</script>
 		<style>
 			@font-face {
 				font-family: "JetBrainsMonoNLNerdFontMono";
@@ -42,6 +52,14 @@ const title = "~/";
 				--spacing-lg: 2em;
 			}
 
+			/* Catppuccin Latte (light theme) */
+			[data-theme="light"] {
+				--color-background: #eff1f5;
+				--color-text: #4c4f69;
+				--color-accent-mauve: #8839ef;
+				--color-accent-rosewater: #dc8a78;
+			}
+
 			*,
 			*::before,
 			*::after {
@@ -56,6 +74,22 @@ const title = "~/";
 				height: 100%;
 				margin: 0;
 				overflow-x: hidden;
+			}
+
+			/* CRT dot grid overlay */
+			html::after {
+				content: "";
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				z-index: 9999;
+				background-image: radial-gradient(
+					circle,
+					var(--color-text) 1px,
+					transparent 1px
+				);
+				background-size: 20px 20px;
+				opacity: 0.04;
 			}
 
 			body {
@@ -94,6 +128,7 @@ const title = "~/";
 			nav {
 				display: grid;
 				grid-template-columns: 1fr 1fr;
+				gap: 0 1.5em;
 				margin: 0 var(--spacing-md);
 				min-width: 0;
 				padding: var(--spacing-md) 0;
@@ -102,17 +137,117 @@ const title = "~/";
 			ul {
 				list-style-type: none;
 				margin: 0 auto;
-				padding: 0;
+				padding: 0 0 0 1em;
 				white-space: nowrap;
 				display: flex;
 				flex-direction: column;
-				align-items: center;
+				align-items: flex-start;
 			}
 
 			li:first-child {
 				font-weight: bold;
 				line-height: var(--spacing-lg);
 				color: var(--color-accent-rosewater);
+			}
+
+			/* Link hover effect — "> " prefix */
+			li:not(:first-child) {
+				position: relative;
+				transition: transform 0.15s ease;
+			}
+
+			li:not(:first-child) a::before {
+				content: "> ";
+				position: absolute;
+				right: 100%;
+				opacity: 0;
+				transition: opacity 0.15s ease;
+				color: var(--color-accent-mauve);
+			}
+
+			li:not(:first-child):hover {
+				transform: translateX(4px);
+			}
+
+			li:not(:first-child):hover a::before {
+				opacity: 1;
+			}
+
+			/* Keyboard shortcut hints */
+			li[data-shortcut]::after {
+				content: " [" attr(data-shortcut) "]";
+				opacity: 0.3;
+			}
+
+			/* Search-hidden links */
+			li.search-hidden {
+				display: none;
+			}
+
+			/* Keyboard-navigated link */
+			li.nav-selected {
+				transform: translateX(4px);
+			}
+
+			li.nav-selected a::before {
+				opacity: 1;
+			}
+
+			li.nav-selected a {
+				color: var(--color-accent-rosewater);
+			}
+
+			/* Search bar */
+			.search {
+				grid-column: 1 / -1;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 0.5em;
+			}
+
+			.search.active {
+				display: flex;
+			}
+
+			.search-prompt {
+				color: var(--color-accent-mauve);
+				font-weight: bold;
+			}
+
+			.search-input {
+				background: transparent;
+				border: none;
+				border-bottom: 2px solid var(--color-accent-mauve);
+				color: var(--color-text);
+				font-family: var(--font-family);
+				font-size: 1em;
+				outline: none;
+				padding: 0.1em 0.2em;
+				width: 16em;
+				max-width: 60vw;
+			}
+
+			/* Theme toggle button */
+			.theme-toggle {
+				position: fixed;
+				top: 1em;
+				right: 1em;
+				z-index: 10;
+				background: none;
+				border: none;
+				color: var(--color-text);
+				cursor: pointer;
+				font-family: system-ui, sans-serif;
+				font-size: 1.4rem;
+				opacity: 0.4;
+				transition: opacity 0.2s ease;
+				padding: 0.25em;
+				line-height: 1;
+			}
+
+			.theme-toggle:hover {
+				opacity: 1;
 			}
 
 			img {
@@ -122,6 +257,58 @@ const title = "~/";
 				object-position: 50% 100%;
 				width: 10em;
 				max-width: 100%;
+			}
+
+			/* Fade-in animations */
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(8px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			h1 {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 0ms;
+			}
+
+			.search {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 50ms;
+			}
+
+			ul:nth-of-type(1) {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 100ms;
+			}
+
+			ul:nth-of-type(2) {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 150ms;
+			}
+
+			ul:nth-of-type(3) {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 200ms;
+			}
+
+			ul:nth-of-type(4) {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 250ms;
+			}
+
+			img {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 300ms;
+			}
+
+			.theme-toggle {
+				animation: fadeInUp 0.25s ease both;
+				animation-delay: 350ms;
 			}
 
 			/* Responsive Design */
@@ -168,35 +355,51 @@ const title = "~/";
 		</style>
 	</head>
 	<body>
+		<!-- Hidden chars for font subsetting pipeline -->
+		<span
+			aria-hidden="true"
+			style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"
+			>ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:&gt;$_</span
+		>
+		<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"
+		></button>
 		<nav>
 			<h1>ようこそ『LuxF3rre』</h1>
-			<ul>
-				<li>~/general</li>
+			<div class="search" id="search">
+				<span class="search-prompt">$ </span>
+				<input
+					id="search-input"
+					class="search-input"
+					autocomplete="off"
+					spellcheck="false"
+					aria-label="Search"
+				/>
+			</div>
+			<ul data-category="1">
+				<li data-shortcut="1">~/general</li>
 				<li><a href="https://app.todoist.com/app/inbox">todoist</a></li>
 				<li><a href="https://app.reclaim.ai/planner">reclaim</a></li>
 				<li><a href="https://app.ynab.com/">ynab</a></li>
 				<li><a href="https://grokipedia.com/">grokipedia</a></li>
 			</ul>
-			<ul>
-				<li>~/media</li>
+			<ul data-category="2">
+				<li data-shortcut="2">~/media</li>
 				<li><a href="https://anilist.co/home">anilist</a></li>
 				<li><a href="https://tidal.com/">tidal</a></li>
 				<li><a href="https://theindex.moe/">the index</a></li>
 				<li><a href="https://releases.moe/">seadex</a></li>
 			</ul>
-			<ul>
-				<li>~/social</li>
+			<ul data-category="3">
+				<li data-shortcut="3">~/social</li>
 				<li><a href="https://www.reddit.com/">reddit</a></li>
 				<li>
-					<a href="https://www.reddit.com/user/luxf3rre/m/ai/"
-						>reddit/ai</a
-					>
+					<a href="https://www.reddit.com/user/luxf3rre/m/ai/">reddit/ai</a>
 				</li>
 				<li><a href="https://x.com/home">x</a></li>
 				<li><a href="https://www.facebook.com/">facebook</a></li>
 			</ul>
-			<ul>
-				<li>~/tech</li>
+			<ul data-category="4">
+				<li data-shortcut="4">~/tech</li>
 				<li><a href="https://claude.ai/new">claude</a></li>
 				<li><a href="https://openrouter.ai/models">openrouter</a></li>
 				<li><a href="https://huggingface.co/">huggingface</a></li>
@@ -213,5 +416,191 @@ const title = "~/";
 			width="246"
 			height="355"
 		/>
+		<script is:inline>
+			(function () {
+				// --- Search ---
+				var searchEl = document.getElementById("search");
+				var searchInput = document.getElementById("search-input");
+				var searchActive = false;
+				var allLinks = document.querySelectorAll("nav ul li:not(:first-child)");
+
+				function activateSearch() {
+					searchActive = true;
+					searchEl.classList.add("active");
+					searchInput.value = "";
+					searchInput.focus();
+					filterLinks("");
+				}
+
+				function dismissSearch() {
+					searchActive = false;
+					searchEl.classList.remove("active");
+					searchInput.value = "";
+					filterLinks("");
+				}
+
+				function filterLinks(query) {
+					var q = query.toLowerCase();
+					allLinks.forEach(function (li) {
+						if (!q) {
+							li.classList.remove("search-hidden");
+						} else {
+							var text = li.textContent.toLowerCase();
+							li.classList.toggle("search-hidden", text.indexOf(q) === -1);
+						}
+					});
+				}
+
+				searchInput.addEventListener("input", function () {
+					filterLinks(searchInput.value);
+				});
+
+				searchInput.addEventListener("keydown", function (e) {
+					if (e.key === "Enter") {
+						e.preventDefault();
+						var visible = document.querySelectorAll(
+							"nav ul li:not(:first-child):not(.search-hidden) a"
+						);
+						if (visible.length > 0) {
+							window.location.href = visible[0].href;
+						} else if (searchInput.value.trim()) {
+							window.location.href =
+								"https://search.brave.com/search?q=" +
+								encodeURIComponent(searchInput.value.trim());
+						}
+					} else if (e.key === "Escape") {
+						dismissSearch();
+					}
+				});
+
+				// --- Keyboard navigation ---
+				var navLinks = Array.prototype.slice.call(
+					document.querySelectorAll("nav ul li:not(:first-child)")
+				);
+				var navIndex = -1;
+
+				// Build category start indices: { "1": 0, "2": 4, ... }
+				var categoryStarts = {};
+				var idx = 0;
+				document.querySelectorAll("nav ul[data-category]").forEach(function (ul) {
+					categoryStarts[ul.getAttribute("data-category")] = idx;
+					idx += ul.querySelectorAll("li:not(:first-child)").length;
+				});
+
+				function clearNavSelection() {
+					if (navIndex >= 0 && navIndex < navLinks.length) {
+						navLinks[navIndex].classList.remove("nav-selected");
+					}
+					navIndex = -1;
+				}
+
+				function selectNavLink(i) {
+					// Wrap around
+					var len = navLinks.length;
+					i = ((i % len) + len) % len;
+					if (navIndex >= 0 && navIndex < len) {
+						navLinks[navIndex].classList.remove("nav-selected");
+					}
+					navIndex = i;
+					navLinks[navIndex].classList.add("nav-selected");
+				}
+
+				document.addEventListener("keydown", function (e) {
+					// Ignore if inside an input/textarea
+					if (
+						e.target.tagName === "INPUT" ||
+						e.target.tagName === "TEXTAREA"
+					) {
+						return;
+					}
+
+					// "/" activates search
+					if (e.key === "/") {
+						e.preventDefault();
+						clearNavSelection();
+						activateSearch();
+						return;
+					}
+
+					// Tab / Shift+Tab for navigation cycling
+					if (e.key === "Tab") {
+						e.preventDefault();
+						if (navIndex < 0) {
+							selectNavLink(e.shiftKey ? navLinks.length - 1 : 0);
+						} else {
+							selectNavLink(navIndex + (e.shiftKey ? -1 : 1));
+						}
+						return;
+					}
+
+					// Enter navigates to selected link
+					if (e.key === "Enter" && navIndex >= 0) {
+						var a = navLinks[navIndex].querySelector("a");
+						if (a) window.location.href = a.href;
+						return;
+					}
+
+					// Escape clears navigation
+					if (e.key === "Escape" && navIndex >= 0) {
+						clearNavSelection();
+						return;
+					}
+
+					if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+						// 1-4 jump to first link in that category
+						if (e.key >= "1" && e.key <= "4" && categoryStarts[e.key] !== undefined) {
+							selectNavLink(categoryStarts[e.key]);
+							return;
+						}
+
+						// Other letters activate search
+						clearNavSelection();
+						activateSearch();
+						searchInput.value = e.key;
+						filterLinks(e.key);
+						return;
+					}
+				});
+
+				// --- Theme toggle ---
+				var toggleBtn = document.getElementById("theme-toggle");
+				var html = document.documentElement;
+
+				function getTheme() {
+					return html.getAttribute("data-theme") === "light"
+						? "light"
+						: "dark";
+				}
+
+				function updateToggleIcon() {
+					toggleBtn.textContent = getTheme() === "light" ? "☀" : "☾";
+				}
+
+				function setTheme(theme) {
+					if (theme === "light") {
+						html.setAttribute("data-theme", "light");
+					} else {
+						html.removeAttribute("data-theme");
+					}
+					localStorage.setItem("theme", theme);
+					updateToggleIcon();
+				}
+
+				updateToggleIcon();
+
+				toggleBtn.addEventListener("click", function () {
+					setTheme(getTheme() === "light" ? "dark" : "light");
+				});
+
+				// Listen for OS theme changes
+				window
+					.matchMedia("(prefers-color-scheme: light)")
+					.addEventListener("change", function (e) {
+						if (!localStorage.getItem("theme")) {
+							setTheme(e.matches ? "light" : "dark");
+						}
+					});
+			})();
+		</script>
 	</body>
 </html>
