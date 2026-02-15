@@ -50,5 +50,7 @@ function fontSubsetting() {
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://ajrego.github.io',
+  base: '/startpage',
   integrations: [fontSubsetting()],
 });
